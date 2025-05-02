@@ -1,5 +1,5 @@
 image:
-  repository: aldisyah02/interview-nginx:latest
+  repository: aldisyah02/interview-nginx
   tag: latest
   pullPolicy: IfNotPresent
 
