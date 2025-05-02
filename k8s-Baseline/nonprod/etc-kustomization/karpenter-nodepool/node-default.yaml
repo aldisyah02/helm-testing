@@ -1,0 +1,70 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: default
+spec:
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 730h0m0s
+  limits:
+    cpu: '32'
+  template:
+    metadata:
+      labels:
+        node_group: default
+    spec:
+      kubelet:
+        maxPods: 110
+      nodeClassRef:
+        name: default
+      requirements:
+      - key: "karpenter.k8s.aws/instance-category"
+        operator: In
+        values: ["t"]
+      - key: "karpenter.k8s.aws/instance-cpu"
+        operator: In
+        values: ["4"]
+      - key: "topology.kubernetes.io/zone"
+        operator: In
+        values: ["ap-southeast-3a","ap-southeast-3b"]
+      - key: "kubernetes.io/arch"
+        operator: In
+        values: ["amd64"]
+      - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
+        operator: In
+        values: ["spot"]
+      - key: kubernetes.io/os	
+        operator: In	
+        values:	
+          - linux
+  weight: 100
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  amiSelectorTerms:
+    - name: amazon-eks-node-1.30-v20250203
+    - id: ami-0d89849c7fe45806e
+  blockDeviceMappings:
+  - deviceName: /dev/xvda
+    ebs:
+      volumeSize: 50Gi
+      volumeType: gp3
+      encrypted: true
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: optional
+  role: Karpenter-eks-nonprod-testing
+  subnetSelectorTerms:
+    - id: subnet-09b651fc796cf4255
+    - id: subnet-06c2f2ef950c8b240
+  securityGroupSelectorTerms:
+  - tags:
+      karpenter.sh/discovery: eks-nonprod-testing # cluster name
+  tags:
+    karpenter.sh/discovery: eks-nonprod-testing # cluster name

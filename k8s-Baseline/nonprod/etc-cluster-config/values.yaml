@@ -1,0 +1,17 @@
+spec:
+  destination:
+    # HIGHLIGHT
+    server: https://39F81FAF80873257A0E43B48FC4D1900.gr7.ap-southeast-3.eks.amazonaws.com
+    namespace: "nonprod"
+  source:
+    # HIGHLIGHT
+    repoURL: https://github.com/aldisyah02/helm-testing.git
+    # HIGHLIGHT
+    targetRevision: master
+
+# HIGHLIGHT
+applications:
+  - name: dt-supporting-manifest
+  - name: karpenter-provisioner
+    namespace: karpenter
+    project: xl-dt-consolidated-nonprod-green
